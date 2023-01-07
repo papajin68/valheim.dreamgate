@@ -5,7 +5,7 @@ MUST be installed on both the client and the server!
 
 ## Configuration
   
-On first launch a config will be generated in BepInEx/config, by default boss marking will be disabled, and teleporting will be enabled.
+On first launch a config will be generated in BepInEx/config, by default boss marking will be **disabled**, and teleporting will be **enabled**.
   
 ## License  
   
