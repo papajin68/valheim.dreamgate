@@ -9,4 +9,4 @@ On first launch a config will be generated in BepInEx/config, by default boss ma
   
 ## License  
   
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](https://github.com/OhhLoz/HoneyPlus/blob/master/LICENSE) file for details  
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](https://github.com/papajin68/valheim.dreamgate/blob/master/LICENSE) file for details  
