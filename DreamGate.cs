@@ -6,6 +6,7 @@
 // Project: DreamGate
 
 using BepInEx;
+using BepInEx.Configuration;
 using HarmonyLib;
 using Jotunn.Entities;
 using Jotunn.Managers;
@@ -29,13 +30,27 @@ namespace DreamGate
 
         private static bool playerIsDreaming = false;
         private static string sleepText = "ZZZZZzzzz...";
+        private static string originalPinName;
+        private static string originalName;
 
         public static CustomLocalization Localization = LocalizationManager.Instance.GetLocalization();
 
         internal static Harmony _harmony;
 
+        private static ConfigEntry<bool> _allowBossMark;
+        private static ConfigEntry<bool> _allowTeleport;
+
         private void Awake()
         {
+            Config.SaveOnConfigSet = true;
+
+            _allowBossMark = Config.Bind("General", "AllowBossMark", false,
+                new ConfigDescription("Allow marking of boss on map when clicking on Dream Gate", null,
+                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+            _allowTeleport = Config.Bind("General", "AllowTeleport", true,
+                new ConfigDescription("Allow one-way teleport to active player bed when clicking on Dream Gate", null,
+                new ConfigurationManagerAttributes { IsAdminOnly = true }));
+
             _harmony = new Harmony(Info.Metadata.GUID);
             _harmony.PatchAll();
 
@@ -51,17 +66,37 @@ namespace DreamGate
         [HarmonyPatch(typeof(Vegvisir), nameof(Vegvisir.GetHoverText))]
         class VegvisirHoverPatch
         {
-            static void Prefix(ref string ___m_name, ref string ___m_pinName)
+            static void Prefix(Vegvisir __instance, ref string ___m_name, ref string ___m_pinName)
             {
-                ___m_name = "Dream Gate:";
+                if (originalPinName.IsNullOrWhiteSpace())
+                {
+                    originalPinName = ___m_pinName;
+                }
 
-                Player localPlayer = Player.m_localPlayer;
-                if (localPlayer.IsTeleportable())
+                if (originalName.IsNullOrWhiteSpace())
                 {
-                    ___m_pinName = "The stone hums with energy.";
-                } else
+                    originalName = ___m_name;
+                }
+
+                ___m_pinName = originalPinName;
+
+                if (_allowTeleport.Value)
                 {
-                    ___m_pinName = "The stone hums faintly but appears inactive.";
+                    ___m_name = "Dream Gate:";
+
+                    Player localPlayer = Player.m_localPlayer;
+                    if (localPlayer.IsTeleportable())
+                    {
+                        ___m_pinName += " - The stone hums with energy.";
+                    }
+                    else
+                    {
+                        ___m_pinName += " - The stone hums faintly but appears inactive.";
+                    }
+                }
+                else
+                {
+                    ___m_name = originalName;
                 }
             }
         }
@@ -69,7 +104,7 @@ namespace DreamGate
         [HarmonyPatch(typeof(Vegvisir), nameof(Vegvisir.Interact))]
         class VegvisirInteractPatch
         {
-            static bool Prefix(Vegvisir __instance, bool hold)
+            static bool Prefix(Vegvisir __instance, bool hold, ref string ___m_pinName)
             {
                 Player lp = Player.m_localPlayer;
                 if (hold)
@@ -77,20 +112,33 @@ namespace DreamGate
                     return false;
                 }
 
-                if (!lp.IsTeleportable())
+                if (_allowTeleport.Value)
                 {
-                    lp.Message(MessageHud.MessageType.Center, "The Dream Gate is unable to activate.");
-                }
-                else
-                {
-                    if ((bool)lp)
+                    if (!lp.IsTeleportable())
                     {
-                        Jotunn.Logger.LogInfo($"The player begins to dream.");
-                        Game.instance.StartCoroutine(FindPlayerBed());
+                        lp.Message(MessageHud.MessageType.Center, "The Dream Gate is unable to activate.");
+                    }
+                    else
+                    {
+                        if ((bool)lp)
+                        {
+                            Jotunn.Logger.LogInfo($"The player begins to dream.");
+                            Game.instance.StartCoroutine(FindPlayerBed());
+                        }
                     }
                 }
 
-                return false;
+                if (!_allowBossMark.Value)
+                {
+                    if (!_allowTeleport.Value)
+                    {
+                        lp.Message(MessageHud.MessageType.Center, "The Vegvisir is inactive and does nothing.");
+                    }
+                    return false;
+                }
+
+                ___m_pinName = originalPinName;
+                return true;
             }
         }
 

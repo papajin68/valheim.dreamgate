@@ -71,7 +71,7 @@ if($Target.Equals("Release")) {
     Write-Host "Packaging for ThunderStore..."
     $Package="Package"
     $PackagePath="$ProjectPath\$Package"
-    $pkg = New-Item -Type Directory -Path "$PackagePath\plugins\papajin68.$name" -Force
+    $pkg = New-Item -Type Directory -Path "$PackagePath" -Force
 
     Write-Host "$PackagePath\$TargetAssembly"
     Copy-Item -Path "$TargetPath\$TargetAssembly" -Destination "$pkg\$TargetAssembly" -Force

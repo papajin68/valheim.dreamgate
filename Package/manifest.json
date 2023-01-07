@@ -1,0 +1,10 @@
+{
+  "name": "DreamGate",
+  "version_number": "1.0.0",
+  "website_url": "https://github.com/thunderstore-io",
+  "description": "Dream Gate encourages exploration by disabling boss marking when clicking on a Vegvisir, but converts the Vegvisir into a one-way portal back to a player's active bed.",
+  "dependencies": [
+    "denikson-BepInExPack_Valheim-5.4.1901",
+    "ValheimModding-Jotunn-2.10.2"
+  ]
+}
