@@ -26,7 +26,7 @@ namespace DreamGate
     {
         public const string PluginGUID = "papajin68.dreamgate";
         public const string PluginName = "DreamGate";
-        public const string PluginVersion = "1.0.0";
+        public const string PluginVersion = "1.0.1";
 
         private static bool playerIsDreaming = false;
         private static string sleepText = "ZZZZZzzzz...";
@@ -64,7 +64,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(Vegvisir), nameof(Vegvisir.GetHoverText))]
-        class VegvisirHoverPatch
+        class p68_VegvisirHoverPatch
         {
             static void Prefix(Vegvisir __instance, ref string ___m_name, ref string ___m_pinName)
             {
@@ -102,7 +102,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(Vegvisir), nameof(Vegvisir.Interact))]
-        class VegvisirInteractPatch
+        class p68_VegvisirInteractPatch
         {
             static bool Prefix(Vegvisir __instance, bool hold, ref string ___m_pinName)
             {
@@ -123,7 +123,7 @@ namespace DreamGate
                         if ((bool)lp)
                         {
                             Jotunn.Logger.LogInfo($"The player begins to dream.");
-                            Game.instance.StartCoroutine(FindPlayerBed());
+                            Game.instance.StartCoroutine(p68_FindPlayerBed());
                         }
                     }
                 }
@@ -143,7 +143,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(SleepText), nameof(SleepText.ShowDreamText))]
-        class SleepTextShowDreamTextPatch
+        class p68_SleepTextShowDreamTextPatch
         {
             static void Prefix(ref DreamTexts ___m_dreamTexts)
             {
@@ -155,7 +155,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(SleepText), nameof(SleepText.OnEnable))]
-        class SleepTextOnEnablePatch
+        class p68_SleepTextOnEnablePatch
         {
             static void Prefix(ref Text ___m_textField)
             {
@@ -168,7 +168,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(SleepText), nameof(SleepText.HideDreamText))]
-        class SleepTextHideDreamTextPatch
+        class p68_SleepTextHideDreamTextPatch
         {
            static void Postfix(ref Text ___m_textField)
             {
@@ -177,7 +177,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(Hud), nameof(Hud.UpdateBlackScreen))]
-        class HudUpdateBlackScreenPatch
+        class p68_HudUpdateBlackScreenPatch
         {
             static void Prefix(ref UnityEngine.CanvasGroup ___m_loadingScreen)
             {
@@ -189,7 +189,7 @@ namespace DreamGate
         }
 
         [HarmonyPatch(typeof(MessageHud), nameof(MessageHud.ShowMessage))]
-        class MessageHudShowMessagePatch
+        class p68_MessageHudShowMessagePatch
         {
             static bool Prefix(MessageHud __instance, MessageHud.MessageType type, string text, int amount = 0, Sprite icon = null)
             {
@@ -203,7 +203,7 @@ namespace DreamGate
             }
         }
 
-        private static IEnumerator FindPlayerBed()
+        private static IEnumerator p68_FindPlayerBed()
         {
             var sw = new Stopwatch();
             sw.Start();
